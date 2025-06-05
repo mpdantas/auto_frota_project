@@ -1,0 +1,31 @@
+{% extends 'core/base.html' %} {# Informa que este template estende o base.html #}
+{% load static %} {# Necessário se você for usar {% static %} DENTRO dos blocos #}
+
+{% block title %}Dashboard{% endblock %} {# Define o título específico para esta página #}
+
+{% block content %} {# Inicia o bloco de conteúdo principal #}
+    <div class="dashboard-container">
+        {% if user.is_authenticated %}
+            <h1>Bem-vindo, {{ user.username }}!</h1>
+            <p>Este é o Dashboard do Sistema Auto Frota.</p>
+            {% else %}
+            <p>Você não está logado.</p>
+            <a href="{% url 'core:login' %}">Voltar para o Login</a>
+        {% endif %}
+
+        <section class="dashboard-stats">
+            <h2>Estatísticas da Frota</h2>
+            <p>Quantidade de carros registrados: [Ainda a implementar]</p>
+            <p>Alertas de vencimento: [Ainda a implementar]</p>
+        </section>
+
+        <section class="dashboard-actions">
+            <h2>Ações Rápidas</h2>
+            <ul>
+                <li><a href="#">Registrar Novo Veículo</a></li>
+                <li><a href="#">Buscar Veículo</a></li>
+                <li><a href="#">Gerenciar Sinistros</a></li>
+            </ul>
+        </section>
+    </div>
+{% endblock content %} {# Finaliza o bloco de conteúdo principal #}

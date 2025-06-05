@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'veiculos',
     'sinistros',
+    'core',
 ]
 
 MIDDLEWARE = [
@@ -122,3 +123,21 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# backend/auto_frota/settings.py
+
+# ... (restante do arquivo) ...
+
+import os # Importa o módulo os para manipulação de caminhos de arquivos
+
+# Configuração para arquivos estáticos (CSS, JavaScript, Imagens)
+STATIC_URL = 'static/' # A URL que será usada para referenciar arquivos estáticos (ex: /static/main.css)
+
+# Lista de diretórios adicionais onde o Django deve procurar arquivos estáticos.
+# Isso é crucial para incluir os arquivos do seu frontend.
+STATICFILES_DIRS = [
+    # Junta o caminho base do projeto com a pasta 'frontend'
+    os.path.join(BASE_DIR, '../frontend'),
+]
+
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # Configuração para deploy em produção

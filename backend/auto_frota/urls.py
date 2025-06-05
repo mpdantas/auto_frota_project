@@ -14,9 +14,15 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+# backend/auto_frota/urls.py
+
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include # Importa 'include' para incluir URLs de outros apps
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls), # URL para o painel de administração do Django
+    path('', include('core.urls')),  # Inclui as URLs do aplicativo 'core'.
+                                     # Quando o path está vazio (''), significa que 'core'
+                                     # gerenciará as URLs a partir da raiz do projeto.
+                                     # Por exemplo, 'http://127.0.0.1:8000/login/'
 ]
