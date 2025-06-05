@@ -1,0 +1,126 @@
+/* frontend/css/main.css */
+
+/* Estilos Globais do Body (Base) */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0; /* Remove a margem padrão do body */
+    padding: 0; /* Remove o padding padrão do body */
+    line-height: 1.6; /* Define a altura da linha padrão */
+    color: #333; /* Cor de texto padrão */
+}
+
+/* Layout Geral do Wrapper: Garante que o cabeçalho, conteúdo e rodapé ocupem a tela inteira */
+.main-wrapper {
+    display: flex;
+    flex-direction: column; /* Organiza os filhos em coluna (header, main, footer) */
+    min-height: 100vh; /* Faz com que o wrapper ocupe no mínimo 100% da altura da viewport */
+    width: 100%; /* Ocupa 100% da largura */
+}
+
+/* Cabeçalho Principal */
+.main-header {
+    background-color: #2c3e50; /* Azul escuro */
+    color: white;
+    padding: 15px 30px;
+    display: flex; /* Para alinhar logo e navegação na mesma linha */
+    justify-content: space-between; /* Espaça logo e navegação */
+    align-items: center; /* Centraliza verticalmente logo e navegação */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+.main-header .logo {
+    display: flex;
+    align-items: center; /* Centraliza logo e texto verticalmente */
+}
+
+.main-header .logo-img {
+    height: 40px; /* Altura do logo */
+    margin-right: 10px; /* Espaço entre logo e texto */
+}
+
+.main-header .logo-text {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.main-header .main-nav ul {
+    list-style: none; /* Remove marcadores de lista */
+    margin: 0;
+    padding: 0;
+    display: flex; /* Para alinhar itens da navegação na mesma linha */
+}
+
+.main-header .main-nav ul li {
+    margin-left: 20px; /* Espaçamento entre os itens do menu */
+}
+
+.main-header .main-nav ul li a {
+    color: white;
+    text-decoration: none; /* Remove sublinhado dos links */
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease; /* Transição suave no hover */
+}
+
+.main-header .main-nav ul li a:hover {
+    background-color: #34495e; /* Tom mais escuro no hover */
+}
+
+/* Conteúdo Principal (Central) */
+.main-content {
+    flex-grow: 1; /* Faz esta seção expandir para preencher todo o espaço vertical disponível */
+    padding: 20px;
+    /* Adiciona flexbox para centralizar os containers dentro do main-content */
+    display: flex;
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center; /* Centraliza verticalmente */
+    flex-direction: column; /* Permite que os itens internos empilhem */
+}
+
+/* Rodapé */
+.main-footer {
+    background-color: #34495e; /* Um tom mais escuro */
+    color: #ecf0f1; /* Cor de texto mais clara */
+    text-align: center;
+    padding: 15px 0;
+    font-size: 0.9em;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+/* Estilos Específicos para o Container de Login */
+.login-container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px; /* Largura fixa para o formulário */
+    text-align: center;
+    /* Margens para garantir espaçamento, se não for centralizado por flex no main-content */
+    /* margin: 50px auto; */
+}
+.login-container h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+.login-container input[type="text"],
+.login-container input[type="password"] {
+    width: calc(100% - 20px); /* Largura total menos padding */
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+.login-container button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+.login-container button:hover {
+    background-color: #005
