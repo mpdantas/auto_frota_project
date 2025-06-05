@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python/
+env/
+venv/  # Seu ambiente virtual
+
+# Django
+*.log
+*.pot
+*.mo
+*.json
+local_settings.py # Se você tiver configurações locais que não devem ir pro git
+db.sqlite3 # Arquivo de banco de dados SQLite (se estivesse usando, mas é bom ignorar)
+media/ # Arquivos de mídia enviados (geralmente não vão pro git)
+
+# IDEs
+.vscode/ # Configurações do VSCode (opcional, se quiser compartilhar, remova esta linha)
+
+# Operating System files
+.DS_Store
+.env # Arquivos de variáveis de ambiente
