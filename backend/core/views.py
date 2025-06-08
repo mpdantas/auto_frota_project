@@ -1,9 +1,13 @@
 # backend/core/views.py
 
-from django.shortcuts import render, redirect # Importa render para templates e redirect para redirecionamento
+from django.shortcuts import render, redirect # Importa render e redirect
 from django.contrib.auth import authenticate, login, logout # Importa funções de autenticação (authenticate, login, e logout)
 from django.contrib import messages # Importa o módulo de mensagens para feedback ao usuário
 from django.urls import reverse # Importa reverse para gerar URLs por nome
+
+# Importa o modelo Veiculo para poder contar os carros no dashboard
+from veiculos.models import Veiculo # NOVO: Importa o modelo Veiculo
+
 
 def login_view(request):
     """
@@ -39,20 +43,17 @@ def dashboard_view(request):
     """
     Esta view será responsável por exibir a página do dashboard.
     - Verifica se o usuário está autenticado. Se não, redireciona para o login.
-    - Renderiza o template do dashboard.
-    No futuro, buscará e exibirá dados relevantes para o dashboard (contagem de carros, alertas).
+    - Busca e exibe a quantidade de carros ativos.
     """
     # Verifica se o usuário está autenticado. Se não estiver, redireciona para o login.
-    # Isso é uma forma básica de proteger a página.
     if not request.user.is_authenticated:
-        return redirect(reverse('core:login')) # Redireciona para o login se não estiver logado
+        return redirect(reverse('core:login'))
 
-    # No futuro, passaremos dados dinâmicos aqui, como a quantidade de carros
-    # Por enquanto, apenas um valor placeholder
-    quantidade_carros = 0 # Placeholder: iremos buscar isso do banco de dados na próxima etapa
+    # Busca a quantidade real de veículos ativos no sistema
+    quantidade_carros = Veiculo.objects.filter(ativo=True).count()
 
     context = {
-        'quantidade_carros': quantidade_carros,
+        'quantidade_carros': quantidade_carros, # Passa a contagem real para o template
     }
 
     return render(request, 'core/dashboard.html', context)

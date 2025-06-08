@@ -1,12 +1,34 @@
 # backend/veiculos/views.py
 
-from django.shortcuts import render, redirect, get_object_or_404 # Importa render, redirect, e get_object_or_404
-from django.contrib.auth.decorators import login_required # Decorador para exigir login
-from django.contrib import messages # Para exibir mensagens de sucesso/erro
-from django.urls import reverse # Para gerar URLs por nome
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.urls import reverse
 
-from .models import Veiculo, Empresa # Importa os modelos Veiculo e Empresa
-from .forms import VeiculoForm # Importa o formulário que criamos para o Veículo
+from .models import Veiculo, Empresa # Já importado
+from .forms import VeiculoForm, EmpresaForm # NOVO: Importa EmpresaForm
+
+@login_required # Garante que apenas usuários logados possam acessar esta view
+def registrar_empresa(request):
+    """
+    Esta view gerencia o formulário de registro de novas empresas.
+    - Se a requisição for POST, tenta salvar uma nova empresa no banco de dados.
+    - Se o formulário for válido, salva a empresa e redireciona para a lista de veículos (ou dashboard).
+    - Se o formulário for inválido, exibe os erros no formulário.
+    - Se a requisição for GET, exibe um formulário vazio para registro.
+    """
+    if request.method == 'POST':
+        form = EmpresaForm(request.POST) # Instancia o formulário com os dados POST
+        if form.is_valid():
+            form.save() # Salva a nova empresa no banco de dados
+            messages.success(request, 'Empresa registrada com sucesso!')
+            return redirect(reverse('veiculos:listar_carros')) # Redireciona para a lista de veículos
+        else:
+            messages.error(request, 'Erro ao registrar empresa. Verifique os campos.')
+    else:
+        form = EmpresaForm() # Cria um formulário vazio para requisições GET
+
+    return render(request, 'veiculos/registrar_empresa.html', {'form': form})
 
 @login_required # Garante que apenas usuários logados possam acessar esta view
 def registrar_carro(request):
@@ -17,7 +39,7 @@ def registrar_carro(request):
     - Se o formulário for inválido, exibe os erros no formulário.
     - Se a requisição for GET, exibe um formulário vazio para registro.
     """
-    if request.method == 'POST':
+    if request.method == 'POST': # Verifica se a requisição é um POST (envio do formulário)
         # Instancia o formulário com os dados enviados via POST
         form = VeiculoForm(request.POST) 
         if form.is_valid(): # Verifica se os dados do formulário são válidos
@@ -30,7 +52,7 @@ def registrar_carro(request):
     else:
         # Se a requisição for GET, cria um formulário vazio
         form = VeiculoForm()
-    
+
     # Renderiza o template com o formulário
     return render(request, 'veiculos/registrar_carro.html', {'form': form})
 
@@ -38,40 +60,48 @@ def registrar_carro(request):
 def listar_carros(request):
     """
     Esta view busca e exibe uma lista de todos os veículos ativos registrados no sistema.
-    Ela também pode ser usada para contar o total de carros.
+    Permite busca por placa do veículo.
     """
-    # Busca todos os veículos que estão marcados como 'ativo=True'
-    # .select_related('empresa') otimiza a consulta para buscar dados da empresa de uma vez
-    veiculos = Veiculo.objects.filter(ativo=True).select_related('empresa').order_by('placa')
-    
-    # Adiciona a contagem de carros ativos ao contexto
+    # Inicializa a queryset com todos os veículos ativos
+    veiculos = Veiculo.objects.filter(ativo=True).select_related('empresa')
+
+    # Obtém o termo de busca da requisição GET (se houver)
+    query = request.GET.get('q') # 'q' será o nome do campo de busca no HTML
+
+    if query:
+        # Se houver um termo de busca, filtra os veículos.
+        from django.db.models import Q # Importa Q aqui, para ter certeza que está disponível
+        veiculos = veiculos.filter(
+            Q(placa__icontains=query) | # Busca por placa
+            Q(modelo__icontains=query) | # Opcional: buscar também por modelo para uma busca mais ampla
+            Q(chassi__icontains=query)   # Opcional: buscar também por chassi
+        )
+        messages.info(request, f"Exibindo resultados para a busca: '{query}'")
+
+    # Ordena a lista de veículos (após a busca, se houver)
+    veiculos = veiculos.order_by('placa')
+
+    # Adiciona a contagem de carros ativos (ou filtrados) ao contexto
     quantidade_carros = veiculos.count() 
 
     context = {
-        'veiculos': veiculos, # Lista de veículos para exibir no template
-        'quantidade_carros': quantidade_carros, # Quantidade total de carros ativos
+        'veiculos': veiculos,
+        'quantidade_carros': quantidade_carros,
+        'query': query
     }
-    # Renderiza o template 'listar_carros.html' com os dados dos veículos e a contagem
     return render(request, 'veiculos/listar_carros.html', context)
 
 @login_required # Garante que apenas usuários logados possam acessar esta view
-def excluir_carro(request, pk): # Recebe o PK (Primary Key) do veículo a ser excluído
+def excluir_carro(request, pk):
     """
     Esta view realiza a exclusão lógica (desativação) de um veículo.
-    - Busca o veículo pelo ID (pk).
-    - Altera o status 'ativo' para False.
-    - Redireciona para a lista de veículos com mensagem de sucesso.
-    - Se a requisição não for POST, renderiza uma página de confirmação (opcional).
     """
-    # Tenta obter o objeto Veiculo pelo ID (pk). Se não encontrar, retorna um erro 404.
     veiculo = get_object_or_404(Veiculo, pk=pk)
 
-    if request.method == 'POST': # Garante que a ação seja via POST para segurança (formulário ou AJAX)
-        veiculo.ativo = False # Define o status do veículo como inativo
-        veiculo.save() # Salva a mudança no banco de dados
-
+    if request.method == 'POST':
+        veiculo.ativo = False
+        veiculo.save()
         messages.success(request, f'Veículo com placa {veiculo.placa} desativado com sucesso.')
-        return redirect(reverse('veiculos:listar_carros')) # Redireciona para a lista de carros
+        return redirect(reverse('veiculos:listar_carros'))
 
-    # Se a requisição não for POST (ex: GET direto na URL), renderiza uma página de confirmação
     return render(request, 'veiculos/confirmar_exclusao.html', {'veiculo': veiculo})

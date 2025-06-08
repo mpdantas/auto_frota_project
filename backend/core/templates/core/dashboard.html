@@ -3,32 +3,50 @@
 
 {% block title %}Dashboard{% endblock %} {# Define o título específico para esta página #}
 
+{% block extra_css %}
+{# Você pode adicionar CSS específico para o dashboard aqui, se necessário no futuro #}
+{% endblock %}
+
 {% block content %} {# Inicia o bloco de conteúdo principal #}
     <div class="dashboard-container">
+        {# Exibe mensagens do Django (sucesso, erro, etc.) #}
+        {% if messages %}
+            <ul class="messages">
+                {% for message in message_s %} {# Loop pelas mensagens #}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
         {% if user.is_authenticated %}
             <h1>Bem-vindo, {{ user.username }}!</h1>
             <p>Este é o Dashboard do Sistema Auto Frota.</p>
-            {% else %}
-            <p>Você não está logado.</p>
-            <a href="{% url 'core:login' %}">Voltar para o Login</a>
-        {% endif %}
+            
+            <section class="dashboard-stats">
+                <h2>Estatísticas da Frota</h2>
+                {# Link atualizado para a quantidade de carros ativos que leva à lista #}
+                <p>Quantidade de carros ativos: <a href="{% url 'veiculos:listar_carros' %}">{{ quantidade_carros }}</a></p>
+                <p>Alertas de vencimento: [Ainda a implementar]</p>
+            </section>
 
-        <section class="dashboard-stats">
-            <h2>Estatísticas da Frota</h2>
-            <p>Quantidade de carros registrados: [Ainda a implementar]</p>
-            <p>Alertas de vencimento: [Ainda a implementar]</p>
-        </section>
-
-        <section class="dashboard-actions">
+            <section class="dashboard-actions">
                 <h2>Ações Rápidas</h2>
                 <ul>
-                    {# Link atualizado para a página de registro de veículo #}
+                    {# Link para a página de registro de empresa #}
+                    <li><a href="{% url 'veiculos:registrar_empresa' %}">Registrar Nova Empresa</a></li>
+                    {# Link para a página de registro de veículo #}
                     <li><a href="{% url 'veiculos:registrar_carro' %}">Registrar Novo Veículo</a></li>
-                    {# NOVO LINK: Para a lista de veículos #}
+                    {# Link para a lista de veículos #}
                     <li><a href="{% url 'veiculos:listar_carros' %}">Visualizar Frota</a></li>
-                    <li><a href="#">Buscar Veículo</a></li> {# Este será ajustado depois para busca #}
+                    {# Link para a busca de veículo (ainda sem funcionalidade direta na lista, mas o campo de busca já existe) #}
+                    <li><a href="{% url 'veiculos:listar_carros' %}?q=">Buscar Veículo</a></li> {# O "q=" aqui inicia uma busca vazia #}
+                    {# Link para a gestão de sinistros (ainda a implementar) #}
                     <li><a href="#">Gerenciar Sinistros</a></li>
                 </ul>
             </section>
+        {% else %}
+            <p>Você não está logado.</p>
+            <a href="{% url 'core:login' %}">Voltar para o Login</a>
+        {% endif %}
     </div>
 {% endblock content %} {# Finaliza o bloco de conteúdo principal #}

@@ -1,0 +1,185 @@
+{% extends 'core/base.html' %} {# Estende o template base #}
+{% load static %} {# Necessário para usar {% static %} #}
+
+{% block title %}Lista de Veículos{% endblock %} {# Título da página #}
+
+{% block extra_css %}
+<style>
+    /* Estilos para a página de listagem de veículos */
+    .vehicle-list-container {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        max-width: 1200px; /* Largura maior para a tabela */
+        margin: 20px auto; /* Centraliza no conteúdo principal */
+        overflow-x: auto; /* Adiciona scroll horizontal para tabelas grandes */
+    }
+    .vehicle-list-container h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #007bff;
+    }
+    .vehicle-list-container p.count {
+        text-align: right;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #555;
+    }
+    .vehicle-list-container table {
+        width: 100%;
+        border-collapse: collapse; /* Remove espaçamento entre bordas da célula */
+        margin-top: 20px;
+    }
+    .vehicle-list-container th,
+    .vehicle-list-container td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+    }
+    .vehicle-list-container th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        color: #333;
+    }
+    .vehicle-list-container tr:nth-child(even) { /* Estilo para linhas pares */
+        background-color: #f9f9f9;
+    }
+    .vehicle-list-container tr:hover { /* Estilo no hover da linha */
+        background-color: #e9e9e9;
+    }
+    .vehicle-list-container .no-vehicles {
+        text-align: center;
+        padding: 30px;
+        color: #777;
+    }
+
+    /* Estilos para o botão de ação (Desativar) */
+    .action-button {
+        background-color: #dc3545; /* Vermelho para exclusão */
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85em;
+        text-decoration: none; /* Para links que parecem botões */
+        display: inline-block; /* Para padding */
+        transition: background-color 0.3s ease;
+    }
+    .action-button:hover {
+        background-color: #c82333;
+    }
+    .action-button.edit { /* Estilo para um futuro botão de edição */
+        background-color: #007bff;
+    }
+    .action-button.edit:hover {
+        background-color: #0056b3;
+    }
+
+    /* Estilos para o formulário de busca */
+    .search-form {
+        display: flex; /* Para alinhar o campo e o botão */
+        gap: 10px; /* Espaço entre os elementos */
+        margin-bottom: 20px;
+        justify-content: center; /* Centraliza o formulário */
+        flex-wrap: wrap; /* Permite quebrar linha em telas pequenas */
+    }
+    .search-form input[type="search"] {
+        flex-grow: 1; /* Permite que o input cresça */
+        max-width: 400px; /* Largura máxima para o input */
+        padding: 10px 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+    .search-form button {
+        background-color: #007bff; /* Azul para o botão de busca */
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+    .search-form button:hover {
+        background-color: #0056b3;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+    <div class="vehicle-list-container">
+        <h2>Lista de Veículos Ativos</h2>
+
+        {# Exibe mensagens do Django #}
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <form method="get" class="search-form">
+            <input type="search" name="q" placeholder="Buscar por placa, modelo ou chassi..." 
+                   value="{{ query|default:'' }}" aria-label="Termo de busca">
+            <button type="submit">Buscar</button>
+        </form>
+
+        <p class="count">Total de carros ativos: {{ quantidade_carros }}</p>
+
+        {% if veiculos %} {# Verifica se há veículos na lista #}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Placa</th>
+                        <th>Modelo</th>
+                        <th>Marca</th>
+                        <th>Empresa</th>
+                        <th>Condutor</th>
+                        <th>Seguradora</th>
+                        <th>Franquia</th>
+                        <th>Classe Bônus</th>
+                        <th>Vencimento Seguro</th>
+                        <th>Ativo</th>
+                        <th>Ações</th> {# NOVA COLUNA PARA BOTÕES DE AÇÃO #}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for veiculo in veiculos %}
+                    <tr>
+                        <td>{{ veiculo.placa }}</td>
+                        <td>{{ veiculo.modelo }}</td>
+                        <td>{{ veiculo.marca }}</td>
+                        <td>{{ veiculo.empresa.razao_social }}</td> {# Acessa a Razão Social da Empresa relacionada #}
+                        <td>{{ veiculo.nome_condutor|default:"Não informado" }}</td> {# Exibe "Não informado" se campo estiver vazio #}
+                        <td>{{ veiculo.seguradora }}</td>
+                        <td>R$ {{ veiculo.franquia|floatformat:2 }}</td> {# Formata como moeda #}
+                        <td>{{ veiculo.classe_bonus }}</td>
+                        <td>{{ veiculo.data_vencimento_seguro|date:"d/m/Y" }}</td> {# Formata a data #}
+                        <td>{% if veiculo.ativo %}Sim{% else %}Não{% endif %}</td>
+                        <td> {# CÉLULA DE AÇÕES #}
+                            {# Botão para Excluir (desativar) o veículo #}
+                            {# Usa um formulário POST para segurança, e um confirm JavaScript #}
+                            <form action="{% url 'veiculos:excluir_carro' pk=veiculo.pk %}" method="post" style="display:inline;">
+                                {% csrf_token %} {# Token de segurança CSRF #}
+                                <button type="submit" class="action-button" 
+                                        onclick="return confirm('Tem certeza que deseja desativar o veículo {{ veiculo.placa }}? Esta ação não pode ser desfeita diretamente por aqui.');">
+                                    Desativar
+                                </button>
+                            </form>
+                            {# Futuro botão de Editar - Ação de Substituir carro pode começar por aqui #}
+                            {# <a href="#" class="action-button edit">Editar</a> #}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-vehicles">Nenhum veículo ativo registrado no sistema.</p>
+        {% endif %}
+    </div>
+{% endblock content %}
