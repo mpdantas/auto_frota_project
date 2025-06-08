@@ -1,0 +1,141 @@
+{% extends 'core/base.html' %} {# Estende o template base para ter cabeçalho e rodapé #}
+{% load static %} {# Necessário para usar {% static %} #}
+
+{% block title %}Registrar Veículo{% endblock %} {# Título da página #}
+
+{% block extra_css %}
+<style>
+    /* Estilos específicos para o formulário de registro */
+    .form-container {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        max-width: 700px; /* Largura máxima para o formulário */
+        margin: 20px auto; /* Centraliza no conteúdo principal */
+    }
+    .form-container h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #007bff;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #555;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group input[type="date"],
+    .form-group select {
+        width: calc(100% - 22px); /* Largura total menos padding e borda */
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box; /* Garante que padding e borda não aumentem a largura total */
+    }
+    /* Estilo para campos booleanos (checkbox) */
+    .form-group input[type="checkbox"] {
+        margin-right: 10px;
+    }
+    .form-actions {
+        text-align: center;
+        margin-top: 30px;
+    }
+    .form-actions button {
+        background-color: #28a745; /* Verde para o botão de salvar */
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 17px;
+        transition: background-color 0.3s ease;
+    }
+    .form-actions button:hover {
+        background-color: #218838;
+    }
+    /* Estilos para mensagens de erro/sucesso do Django */
+    .messages {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 20px;
+    }
+    .messages li {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+    .messages .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .messages .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    .messages .warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+    }
+    .error-message { /* Estilo para erros de campo específicos */
+        color: #dc3545;
+        font-size: 0.9em;
+        margin-top: 5px;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+    <div class="form-container">
+        <h2>Registrar Novo Veículo</h2>
+
+        {# Exibe mensagens do Django (sucesso, erro, etc.) #}
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %} {# Token de segurança para formulários POST #}
+
+            {# Renderiza cada campo do formulário automaticamente #}
+            {% for field in form %}
+                <div class="form-group">
+                    {{ field.label_tag }} {# Rótulo do campo #}
+                    {{ field }} {# O campo HTML em si (input, select, checkbox, etc.) #}
+                    {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small> {# Texto de ajuda #}
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <p class="error-message">{{ error }}</p> {# Exibe erros de validação para cada campo #}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            {# Erros não específicos de um campo (erros globais do formulário) #}
+            {% if form.non_field_errors %}
+                <ul class="messages">
+                    {% for error in form.non_field_errors %}
+                        <li class="error">{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <div class="form-actions">
+                <button type="submit">Salvar Veículo</button>
+            </div>
+        </form>
+    </div>
+{% endblock content %}

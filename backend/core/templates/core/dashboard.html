@@ -20,12 +20,15 @@
         </section>
 
         <section class="dashboard-actions">
-            <h2>Ações Rápidas</h2>
-            <ul>
-                <li><a href="#">Registrar Novo Veículo</a></li>
-                <li><a href="#">Buscar Veículo</a></li>
-                <li><a href="#">Gerenciar Sinistros</a></li>
-            </ul>
-        </section>
+                <h2>Ações Rápidas</h2>
+                <ul>
+                    {# Link atualizado para a página de registro de veículo #}
+                    <li><a href="{% url 'veiculos:registrar_carro' %}">Registrar Novo Veículo</a></li>
+                    {# NOVO LINK: Para a lista de veículos #}
+                    <li><a href="{% url 'veiculos:listar_carros' %}">Visualizar Frota</a></li>
+                    <li><a href="#">Buscar Veículo</a></li> {# Este será ajustado depois para busca #}
+                    <li><a href="#">Gerenciar Sinistros</a></li>
+                </ul>
+            </section>
     </div>
 {% endblock content %} {# Finaliza o bloco de conteúdo principal #}

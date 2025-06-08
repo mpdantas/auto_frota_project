@@ -16,13 +16,14 @@ Including another URLconf
 """
 # backend/auto_frota/urls.py
 
+# backend/auto_frota/urls.py
+
 from django.contrib import admin
-from django.urls import path, include # Importa 'include' para incluir URLs de outros apps
+from django.urls import path, include # Importa 'include'
 
 urlpatterns = [
-    path('admin/', admin.site.urls), # URL para o painel de administração do Django
-    path('', include('core.urls')),  # Inclui as URLs do aplicativo 'core'.
-                                     # Quando o path está vazio (''), significa que 'core'
-                                     # gerenciará as URLs a partir da raiz do projeto.
-                                     # Por exemplo, 'http://127.0.0.1:8000/login/'
+    path('admin/', admin.site.urls), # URL para o painel de administração
+    path('', include('core.urls')),  # Inclui as URLs do aplicativo 'core' (login, dashboard)
+    # ESTA LINHA É CRUCIAL PARA O ERRO 'veiculos' não é um namespace registrado
+    path('veiculos/', include('veiculos.urls')), # Inclui as URLs do aplicativo 'veiculos'
 ]
