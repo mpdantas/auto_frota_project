@@ -1,7 +1,7 @@
 # backend/core/views.py
 
-from django.shortcuts import render, redirect # Importa render e AGORA TAMBÉM redirect
-from django.contrib.auth import authenticate, login # Importa funções de autenticação do Django
+from django.shortcuts import render, redirect # Importa render para templates e redirect para redirecionamento
+from django.contrib.auth import authenticate, login, logout # Importa funções de autenticação (authenticate, login, e logout)
 from django.contrib import messages # Importa o módulo de mensagens para feedback ao usuário
 from django.urls import reverse # Importa reverse para gerar URLs por nome
 
@@ -9,7 +9,7 @@ def login_view(request):
     """
     Esta view gerencia a exibição e o processamento do formulário de login.
     - Se a requisição for POST, tenta autenticar o usuário.
-    - Se a autenticação for bem-sucedida, redireciona para o dashboard.
+    - Se a autenticação for bem-sucedida, faz o login e redireciona para o dashboard.
     - Caso contrário, exibe uma mensagem de erro e mantém o usuário na página de login.
     - Se a requisição for GET, simplesmente exibe o formulário de login.
     """
@@ -18,15 +18,13 @@ def login_view(request):
         password = request.POST.get('password') # Obtém o valor do campo 'password' do formulário
 
         # Tenta autenticar o usuário com as credenciais fornecidas
-        # 'authenticate' verifica o usuário e senha contra o banco de dados do Django
         user = authenticate(request, username=username, password=password)
 
         if user is not None: # Se a autenticação for bem-sucedida (usuário encontrado e senha correta)
             login(request, user) # Faz o login do usuário na sessão do Django
-            # Adiciona uma mensagem de sucesso para exibir ao usuário (opcional)
+            # Adiciona uma mensagem de sucesso para exibir ao usuário
             messages.success(request, f'Bem-vindo, {user.username}!')
-            # Redireciona para a URL do dashboard (que ainda vamos definir)
-            # reverse('core:dashboard') gera a URL 'http://127.0.0.1:8000/dashboard/'
+            # Redireciona para a URL do dashboard
             return redirect(reverse('core:dashboard'))
         else: # Se a autenticação falhar
             # Adiciona uma mensagem de erro para exibir ao usuário
@@ -40,12 +38,32 @@ def login_view(request):
 def dashboard_view(request):
     """
     Esta view será responsável por exibir a página do dashboard.
-    No futuro, ela buscará dados relevantes para o dashboard.
-    Por enquanto, apenas renderiza um template simples.
+    - Verifica se o usuário está autenticado. Se não, redireciona para o login.
+    - Renderiza o template do dashboard.
+    No futuro, buscará e exibirá dados relevantes para o dashboard (contagem de carros, alertas).
     """
     # Verifica se o usuário está autenticado. Se não estiver, redireciona para o login.
     # Isso é uma forma básica de proteger a página.
     if not request.user.is_authenticated:
         return redirect(reverse('core:login')) # Redireciona para o login se não estiver logado
 
-    return render(request, 'core/dashboard.html') # Renderiza o arquivo 'dashboard.html'
+    # No futuro, passaremos dados dinâmicos aqui, como a quantidade de carros
+    # Por enquanto, apenas um valor placeholder
+    quantidade_carros = 0 # Placeholder: iremos buscar isso do banco de dados na próxima etapa
+
+    context = {
+        'quantidade_carros': quantidade_carros,
+    }
+
+    return render(request, 'core/dashboard.html', context)
+
+def logout_view(request):
+    """
+    Esta view realiza o logout do usuário.
+    - Desloga o usuário da sessão.
+    - Adiciona uma mensagem de sucesso.
+    - Redireciona para a página de login.
+    """
+    logout(request) # Função do Django para deslogar o usuário da sessão
+    messages.info(request, 'Você foi desconectado com sucesso.') # Adiciona uma mensagem de informação
+    return redirect(reverse('core:login')) # Redireciona para a página de login

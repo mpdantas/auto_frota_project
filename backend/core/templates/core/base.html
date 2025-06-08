@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Auto Frota{% endblock %} - Sistema de Gestão de Frotas</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {% load static %} {# Carrega as tags estáticas do Django #}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}"> {# Link para o CSS principal #}
     {% block extra_css %}{% endblock %}
 </head>
-<body class="default-layout">
+<body>
     <div class="main-wrapper">
         <header class="main-header">
             <div class="logo">
@@ -18,9 +18,16 @@
             <nav class="main-nav">
                 <ul>
                     <li><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
-                    <li><a href="#">Veículos</a></li>
-                    <li><a href="#">Sinistros</a></li>
-                    <li><a href="{% url 'admin:logout' %}">Sair ({{ user.username }})</a></li>
+                    {# Link para a lista de veículos #}
+                    <li><a href="{% url 'veiculos:listar_carros' %}">Veículos</a></li> 
+                    <li><a href="#">Sinistros</a></li> {# Este link será configurado mais tarde #}
+                    {# Exibe o nome do usuário logado no link de Sair e aponta para nossa view de logout #}
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'core:logout' %}">Sair ({{ user.username }})</a></li> 
+                    {% else %}
+                        {# Se o usuário não estiver autenticado, mostra um link para o login #}
+                        <li><a href="{% url 'core:login' %}">Login</a></li>
+                    {% endif %}
                 </ul>
             </nav>
         </header>
@@ -31,7 +38,7 @@
         </main>
 
         <footer class="main-footer">
-            <p>&copy; <span id="current-year"></span> R&D Grupo. Todos os direitos reservados.</p>
+            <p>&copy; <span id="current-year"></span> Corretora de Seguros. Todos os direitos reservados.</p>
         </footer>
     </div>
 
