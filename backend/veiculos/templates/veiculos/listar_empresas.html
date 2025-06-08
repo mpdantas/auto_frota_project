@@ -1,0 +1,68 @@
+{% extends 'core/base.html' %} {# Estende o template base #}
+{% load static %} {# Necessário para usar {% static %} #}
+
+{% block title %}Lista de Empresas{% endblock %} {# Título da página #}
+
+{% block extra_css %}
+{# Este bloco agora estará vazio, pois o CSS foi para o main.css #}
+{% endblock extra_css %}
+
+{% block content %}
+    <div class="company-list-container">
+        <h2>Lista de Empresas Cadastradas</h2>
+        
+        {# Exibe mensagens do Django #}
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <form method="get" class="search-form">
+            <input type="text" name="q" placeholder="Buscar por Razão Social ou CNPJ..." 
+                   value="{{ query|default:'' }}" aria-label="Termo de busca">
+            <button type="submit">Buscar</button>
+        </form>
+
+        {% if empresas %} {# Verifica se há empresas na lista #}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Razão Social</th>
+                        <th>CNPJ</th>
+                        <th>Data de Cadastro</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for empresa in empresas %}
+                    <tr>
+                        <td>{{ empresa.razao_social }}</td>
+                        <td>{{ empresa.cnpj }}</td>
+                        <td>{{ empresa.data_cadastro|date:"d/m/Y H:i" }}</td> {# Formata a data e hora #}
+                        <td>
+                            {# Botão para Excluir a empresa #}
+                            <a href="{% url 'veiculos:excluir_empresa' pk=empresa.pk %}" 
+                               class="action-button delete"
+                               onclick="return confirm('ATENÇÃO: A exclusão da empresa \'{{ empresa.razao_social }}\' é PERMANENTE e também EXCLUIRÁ TODOS os veículos associados a ela! Tem certeza que deseja continuar?');">
+                                Excluir
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-companies">Nenhuma empresa encontrada no sistema.</p>
+        {% endif %}
+        <p style="text-align: center; margin-top: 20px;">
+            <a href="{% url 'veiculos:registrar_empresa' %}" class="action-button" style="background-color: #28a745;">Cadastrar Nova Empresa</a>
+        </p>
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+{# Este bloco agora estará vazio, a menos que você adicione JS específico aqui #}
+{% endblock extra_js %}

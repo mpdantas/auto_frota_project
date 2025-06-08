@@ -18,14 +18,13 @@
             <nav class="main-nav">
                 <ul>
                     <li><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
-                    {# Link para a lista de veículos #}
                     <li><a href="{% url 'veiculos:listar_carros' %}">Veículos</a></li> 
-                    <li><a href="#">Sinistros</a></li> {# Este link será configurado mais tarde #}
-                    {# Exibe o nome do usuário logado no link de Sair e aponta para nossa view de logout #}
+                    <li><a href="{% url 'veiculos:listar_empresas' %}">Empresas</a></li>
+                    {# CORRIGIDO: Sinistros no cabeçalho agora aponta para a lista correta #}
+                    <li><a href="{% url 'sinistros:listar_sinistros' %}">Sinistros</a></li>
                     {% if user.is_authenticated %}
                         <li><a href="{% url 'core:logout' %}">Sair ({{ user.username }})</a></li> 
                     {% else %}
-                        {# Se o usuário não estiver autenticado, mostra um link para o login #}
                         <li><a href="{% url 'core:login' %}">Login</a></li>
                     {% endif %}
                 </ul>

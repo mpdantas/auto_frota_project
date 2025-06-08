@@ -1,8 +1,7 @@
 # backend/sinistros/models.py
 
-from django.db import models # Importa o módulo models do Django
-# Importa o modelo Veiculo do app 'veiculos' para criar a chave estrangeira
-from veiculos.models import Veiculo 
+from django.db import models
+from veiculos.models import Veiculo # Importa o modelo Veiculo do app 'veiculos' (necessário para ForeignKey)
 
 class Sinistro(models.Model):
     """
@@ -11,9 +10,9 @@ class Sinistro(models.Model):
     """
     # Relacionamento com o Veículo (Chave Estrangeira)
     veiculo = models.ForeignKey(
-        Veiculo,           # Indica que este campo se relaciona com o modelo Veiculo
+        Veiculo,
         on_delete=models.CASCADE, # Se o veículo for excluído, seus sinistros associados também serão
-        related_name='sinistros', # Nome inverso para acessar os sinistros a partir de um veículo (ex: meu_veiculo.sinistros.all())
+        related_name='sinistros', # Permite acessar sinistros a partir de um veículo (ex: meu_veiculo.sinistros.all())
         verbose_name="Veículo Sinistrado"
     )
 
@@ -34,14 +33,14 @@ class Sinistro(models.Model):
     ]
     tipo_sinistro = models.CharField(
         max_length=50,
-        choices=TIPO_SINISTRO_CHOICES, # Usa as opções definidas acima para o dropdown
-        default='colisao',             # Valor padrão para o tipo de sinistro
+        choices=TIPO_SINISTRO_CHOICES,
+        default='colisao',
         verbose_name="Tipo de Sinistro"
     )
     
     descricao = models.TextField(
-        blank=True,    # Permite que o campo seja vazio
-        null=True,     # Permite que o campo seja NULL no banco de dados
+        blank=True,
+        null=True,
         verbose_name="Descrição Detalhada"
     )
     
@@ -63,21 +62,15 @@ class Sinistro(models.Model):
 
     # Metadados do Registro
     data_registro_sistema = models.DateTimeField(
-        auto_now_add=True, # Preenche automaticamente com a data e hora da criação do registro no sistema
+        auto_now_add=True,
         verbose_name="Data de Registro no Sistema"
     )
 
     class Meta:
-        """
-        Classe Meta interna para definir metadados do modelo Sinistro.
-        """
         verbose_name = "Sinistro"
         verbose_name_plural = "Sinistros"
-        ordering = ['-data_sinistro', 'veiculo__placa'] # Ordena por data do sinistro (mais recente primeiro) e placa do veículo
+        # Ordena por data do sinistro (mais recente primeiro) e depois pela placa do veículo
+        ordering = ['-data_sinistro', 'veiculo__placa']
 
     def __str__(self):
-        """
-        Retorna uma representação em string do objeto Sinistro.
-        Útil para exibição no painel administrativo e em logs.
-        """
         return f"{self.tipo_sinistro} - {self.veiculo.placa} ({self.data_sinistro.strftime('%d/%m/%Y')})"

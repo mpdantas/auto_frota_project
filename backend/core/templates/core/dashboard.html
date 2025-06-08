@@ -4,7 +4,7 @@
 {% block title %}Dashboard{% endblock %} {# Define o título específico para esta página #}
 
 {% block extra_css %}
-{# Você pode adicionar CSS específico para o dashboard aqui, se necessário no futuro #}
+{# Este bloco está vazio, pois o CSS foi para o main.css #}
 {% endblock %}
 
 {% block content %} {# Inicia o bloco de conteúdo principal #}
@@ -12,7 +12,7 @@
         {# Exibe mensagens do Django (sucesso, erro, etc.) #}
         {% if messages %}
             <ul class="messages">
-                {% for message in message_s %} {# Loop pelas mensagens #}
+                {% for message in messages %}
                     <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
                 {% endfor %}
             </ul>
@@ -24,24 +24,46 @@
             
             <section class="dashboard-stats">
                 <h2>Estatísticas da Frota</h2>
-                {# Link atualizado para a quantidade de carros ativos que leva à lista #}
                 <p>Quantidade de carros ativos: <a href="{% url 'veiculos:listar_carros' %}">{{ quantidade_carros }}</a></p>
-                <p>Alertas de vencimento: [Ainda a implementar]</p>
+                
+                {# Exibição de Alertas de Vencimento #}
+                <p>
+                    Alertas de vencimento próximos (próximos 60 dias): 
+                    {% if total_alertas > 0 %}
+                        <span style="color: #dc3545; font-weight: bold;">{{ total_alertas }}</span>
+                    {% else %}
+                        <span style="color: #28a745; font-weight: bold;">Nenhum</span>
+                    {% endif %}
+                </p>
+
+                {% if alertas_vencimento %}
+                    <h3>Detalhes dos Vencimentos Próximos:</h3>
+                    <ul class="alert-list" style="list-style: none; padding: 0;">
+                        {% for alerta in alertas_vencimento %}
+                            <li style="margin-bottom: 5px; color: #dc3545;">
+                                <strong>{{ alerta.placa }}</strong> ({{ alerta.modelo }}) - Empresa: {{ alerta.empresa.razao_social }}
+                                - Vence em: <strong>{{ alerta.data_vencimento_seguro|date:"d/m/Y" }}</strong>
+                                <a href="{% url 'veiculos:editar_carro' pk=alerta.pk %}" 
+                                   style="margin-left: 10px; color: #007bff; text-decoration: none; font-size: 0.9em;">
+                                   [Editar Veículo]
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             </section>
 
             <section class="dashboard-actions">
                 <h2>Ações Rápidas</h2>
                 <ul>
-                    {# Link para a página de registro de empresa #}
                     <li><a href="{% url 'veiculos:registrar_empresa' %}">Registrar Nova Empresa</a></li>
-                    {# Link para a página de registro de veículo #}
+                    <li><a href="{% url 'veiculos:listar_empresas' %}">Gerenciar Empresas</a></li> 
                     <li><a href="{% url 'veiculos:registrar_carro' %}">Registrar Novo Veículo</a></li>
-                    {# Link para a lista de veículos #}
                     <li><a href="{% url 'veiculos:listar_carros' %}">Visualizar Frota</a></li>
-                    {# Link para a busca de veículo (ainda sem funcionalidade direta na lista, mas o campo de busca já existe) #}
-                    <li><a href="{% url 'veiculos:listar_carros' %}?q=">Buscar Veículo</a></li> {# O "q=" aqui inicia uma busca vazia #}
-                    {# Link para a gestão de sinistros (ainda a implementar) #}
-                    <li><a href="#">Gerenciar Sinistros</a></li>
+                    <li><a href="{% url 'veiculos:listar_carros' %}?q=">Buscar Veículo</a></li>
+                    <li><a href="{% url 'sinistros:registrar_sinistro' %}">Registrar Sinistro</a></li>
+                    {# CORRIGIDO: Gerenciar Sinistros agora aponta para a lista correta #}
+                    <li><a href="{% url 'sinistros:listar_sinistros' %}">Gerenciar Sinistros</a></li>
                 </ul>
             </section>
         {% else %}
@@ -49,4 +71,4 @@
             <a href="{% url 'core:login' %}">Voltar para o Login</a>
         {% endif %}
     </div>
-{% endblock content %} {# Finaliza o bloco de conteúdo principal #}
+{% endblock content %}

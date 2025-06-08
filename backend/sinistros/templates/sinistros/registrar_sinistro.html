@@ -1,15 +1,15 @@
-{% extends 'core/base.html' %} {# Estende o template base #}
-{% load static %} {# Necessário para usar {% static %} #}
+{% extends 'core/base.html' %}
+{% load static %}
 
-{% block title %}Registrar Empresa{% endblock %} {# Título da página #}
+{% block title %}Registrar Sinistro{% endblock %}
 
 {% block extra_css %}
-{# Este bloco agora estará vazio, pois o CSS foi para o main.css #}
+{# Este bloco estará vazio, pois o CSS está no main.css #}
 {% endblock extra_css %}
 
 {% block content %}
     <div class="form-container">
-        <h2>Registrar Nova Empresa</h2>
+        <h2>Registrar Novo Sinistro</h2>
         
         {# Exibe mensagens do Django #}
         {% if messages %}
@@ -21,23 +21,21 @@
         {% endif %}
 
         <form method="post">
-            {% csrf_token %} {# Token de segurança para formulários POST #}
+            {% csrf_token %}
             
-            {# Renderiza cada campo do formulário automaticamente #}
             {% for field in form %}
                 <div class="form-group">
-                    {{ field.label_tag }} {# Rótulo do campo #}
-                    {{ field }} {# O campo HTML em si #}
+                    {{ field.label_tag }}
+                    {{ field }}
                     {% if field.help_text %}
-                        <small class="form-text text-muted">{{ field.help_text }}</small> {# Texto de ajuda #}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
                     {% endif %}
                     {% for error in field.errors %}
-                        <p class="error-message">{{ error }}</p> {# Exibe erros de validação #}
+                        <p class="error-message">{{ error }}</p>
                     {% endfor %}
                 </div>
             {% endfor %}
 
-            {# Erros não específicos de um campo (erros globais do formulário) #}
             {% if form.non_field_errors %}
                 <ul class="messages">
                     {% for error in form.non_field_errors %}
@@ -47,12 +45,13 @@
             {% endif %}
 
             <div class="form-actions">
-                <button type="submit">Salvar Empresa</button>
+                <button type="submit">Salvar Sinistro</button>
+                <a href="{% url 'sinistros:listar_sinistros' %}" class="action-button cancel">Cancelar</a>
             </div>
         </form>
     </div>
 {% endblock content %}
 
-{% block extra_js %} {# Adiciona este bloco para o JavaScript da máscara #}
-    <script src="{% static 'js/masks.js' %}"></script>
+{% block extra_js %}
+{# Para o campo de veículo, se houver muitos, podemos pensar em um select2 aqui no futuro. #}
 {% endblock extra_js %}

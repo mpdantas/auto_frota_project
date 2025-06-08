@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %} {# Estende o template base #}
+{% load static %} {# Necessário para usar {% static %} #}
+
+{% block title %}Confirmar Desativação{% endblock %} {# Título da página #}
+
+{% block extra_css %}
+{# Este bloco estará vazio, pois o CSS está no main.css #}
+{% endblock extra_css %}
+
+{% block content %}
+    <div class="confirm-container">
+        <h2>Confirmar Desativação de Veículo</h2>
+        <p>Você tem certeza que deseja **desativar** o veículo com placa **{{ veiculo.placa }}** e modelo **{{ veiculo.modelo }}**?</p>
+        <p>Esta ação tornará o veículo inativo no sistema, mas não o removerá permanentemente. Ele não aparecerá mais na lista de veículos ativos.</p>
+        
+        <div class="confirm-actions">
+            <form action="{% url 'veiculos:excluir_carro' pk=veiculo.pk %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="action-button confirm-delete">Confirmar Desativação</button>
+            </form>
+            <a href="{% url 'veiculos:listar_carros' %}" class="action-button cancel">Cancelar</a>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+{# Este bloco estará vazio, a menos que você adicione JS específico aqui #}
+{% endblock extra_js %}

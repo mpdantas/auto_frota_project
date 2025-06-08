@@ -1,104 +1,21 @@
-{% extends 'core/base.html' %} {# Estende o template base para ter cabeçalho e rodapé #}
+{% extends 'core/base.html' %} {# Estende o template base #}
 {% load static %} {# Necessário para usar {% static %} #}
 
-{% block title %}Registrar Veículo{% endblock %} {# Título da página #}
+{# O título da página muda se estiver no modo de edição #}
+{% block title %}
+    {% if is_edit %}Editar Veículo: {{ veiculo.placa }}{% else %}Registrar Veículo{% endif %}
+{% endblock %}
 
 {% block extra_css %}
-<style>
-    /* Estilos específicos para o formulário de registro */
-    .form-container {
-        background-color: #ffffff;
-        padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        max-width: 700px; /* Largura máxima para o formulário */
-        margin: 20px auto; /* Centraliza no conteúdo principal */
-    }
-    .form-container h2 {
-        text-align: center;
-        margin-bottom: 25px;
-        color: #007bff;
-    }
-    .form-group {
-        margin-bottom: 15px;
-    }
-    .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-        color: #555;
-    }
-    .form-group input[type="text"],
-    .form-group input[type="number"],
-    .form-group input[type="date"],
-    .form-group select {
-        width: calc(100% - 22px); /* Largura total menos padding e borda */
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box; /* Garante que padding e borda não aumentem a largura total */
-    }
-    /* Estilo para campos booleanos (checkbox) */
-    .form-group input[type="checkbox"] {
-        margin-right: 10px;
-    }
-    .form-actions {
-        text-align: center;
-        margin-top: 30px;
-    }
-    .form-actions button {
-        background-color: #28a745; /* Verde para o botão de salvar */
-        color: white;
-        padding: 12px 25px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 17px;
-        transition: background-color 0.3s ease;
-    }
-    .form-actions button:hover {
-        background-color: #218838;
-    }
-    /* Estilos para mensagens de erro/sucesso do Django */
-    .messages {
-        list-style: none;
-        padding: 0;
-        margin-bottom: 20px;
-    }
-    .messages li {
-        padding: 10px;
-        margin-bottom: 10px;
-        border-radius: 4px;
-        font-weight: bold;
-    }
-    .messages .success {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-    .messages .error {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-    }
-    .messages .warning {
-        background-color: #fff3cd;
-        color: #856404;
-        border: 1px solid #ffeeba;
-    }
-    .error-message { /* Estilo para erros de campo específicos */
-        color: #dc3545;
-        font-size: 0.9em;
-        margin-top: 5px;
-    }
-</style>
+{# Este bloco está vazio, pois o CSS foi para o main.css #}
 {% endblock extra_css %}
 
 {% block content %}
     <div class="form-container">
-        <h2>Registrar Novo Veículo</h2>
-
-        {# Exibe mensagens do Django (sucesso, erro, etc.) #}
+        {# O título H2 do formulário muda se estiver no modo de edição #}
+        <h2>{% if is_edit %}Editar Veículo: {{ veiculo.placa }}{% else %}Registrar Novo Veículo{% endif %}</h2>
+        
+        {# Exibe mensagens do Django #}
         {% if messages %}
             <ul class="messages">
                 {% for message in messages %}
@@ -109,7 +26,7 @@
 
         <form method="post">
             {% csrf_token %} {# Token de segurança para formulários POST #}
-
+            
             {# Renderiza cada campo do formulário automaticamente #}
             {% for field in form %}
                 <div class="form-group">
@@ -134,8 +51,14 @@
             {% endif %}
 
             <div class="form-actions">
-                <button type="submit">Salvar Veículo</button>
+                <button type="submit">{% if is_edit %}Salvar Alterações{% else %}Salvar Veículo{% endif %}</button>
+                {# Adiciona um botão de cancelar que volta para a lista de veículos #}
+                <a href="{% url 'veiculos:listar_carros' %}" class="action-button cancel">Cancelar</a>
             </div>
         </form>
     </div>
 {% endblock content %}
+
+{% block extra_js %}
+{# Este bloco está vazio, a menos que você adicione JS específico aqui #}
+{% endblock extra_js %}

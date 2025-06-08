@@ -1,0 +1,78 @@
+{% extends 'core/base.html' %} {# Estende o template base #}
+{% load static %} {# Necessário para usar {% static %} #}
+
+{% block title %}Lista de Sinistros{% endblock %} {# Título da página #}
+
+{% block extra_css %}
+{# Este bloco está vazio, pois o CSS está no main.css #}
+{% endblock extra_css %}
+
+{% block content %}
+    <div class="vehicle-list-container"> {# Reutilizando o container de lista, pois tem estilos similares #}
+        <h2>Histórico de Sinistros</h2>
+        
+        {# Exibe mensagens do Django #}
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <form method="get" class="search-form">
+            <input type="search" name="q" placeholder="Buscar por tipo, status ou placa do veículo..." 
+                   value="{{ query|default:'' }}" aria-label="Termo de busca">
+            <button type="submit">Buscar</button>
+        </form>
+
+        <p class="count">Total de sinistros registrados: {{ total_sinistros }}</p>
+
+        {% if sinistros %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Veículo (Placa)</th>
+                        <th>Modelo</th>
+                        <th>Tipo de Sinistro</th>
+                        <th>Data do Sinistro</th>
+                        <th>Status</th>
+                        <th>Descrição</th>
+                        <th>Empresa</th>
+                        <th>Ações</th> {# COLUNA PARA BOTÕES DE AÇÃO #}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sinistro in sinistros %}
+                    <tr>
+                        <td>{{ sinistro.veiculo.placa }}</td>
+                        <td>{{ sinistro.veiculo.modelo }}</td>
+                        <td>{{ sinistro.get_tipo_sinistro_display }}</td> {# get_FIELD_display para choices #}
+                        <td>{{ sinistro.data_sinistro|date:"d/m/Y" }}</td>
+                        <td>{{ sinistro.get_status_sinistro_display }}</td> {# get_FIELD_display para choices #}
+                        <td>{{ sinistro.descricao|default:"N/A"|truncatechars:50 }}</td> {# Trunca descrição #}
+                        <td>{{ sinistro.veiculo.empresa.razao_social }}</td>
+                        <td> {# CÉLULA DE AÇÕES #}
+                            {# Botão para Excluir o sinistro #}
+                            <a href="{% url 'sinistros:excluir_sinistro' pk=sinistro.pk %}" 
+                               class="action-button delete"
+                               onclick="return confirm('Tem certeza que deseja EXCLUIR permanentemente este sinistro? Esta ação é irreversível.');">
+                                Excluir
+                            </a>
+                            {# Futuros botões de Editar/Detalhes podem vir aqui #}
+                            {# <a href="#" class="action-button edit">Editar</a> #}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-vehicles">Nenhum sinistro registrado no sistema.</p>
+        {% endif %}
+        <p style="text-align: center; margin-top: 20px;">
+            <a href="{% url 'sinistros:registrar_sinistro' %}" class="action-button" style="background-color: #28a745;">Registrar Novo Sinistro</a>
+        </p>
+    </div>
+{% endblock content %}
+
+{% block extra_js %}{% endblock extra_js %}

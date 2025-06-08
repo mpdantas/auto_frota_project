@@ -1,0 +1,30 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Confirmar Exclusão de Sinistro{% endblock %}
+
+{% block extra_css %}
+{# Este bloco está vazio, pois o CSS está no main.css #}
+{% endblock extra_css %}
+
+{% block content %}
+    <div class="confirm-container">
+        <h2>Confirmar Exclusão de Sinistro</h2>
+        <p>Você tem certeza que deseja **EXCLUIR PERMANENTEMENTE** o sinistro do veículo **{{ sinistro.veiculo.placa }}**, ocorrido em **{{ sinistro.data_sinistro|date:"d/m/Y" }}** (Tipo: {{ sinistro.get_tipo_sinistro_display }})?</p>
+        <p style="color: #dc3545; font-weight: bold;">
+            Esta ação é irreversível e o sinistro será removido do histórico!
+        </p>
+        
+        <div class="confirm-actions">
+            <form action="{% url 'sinistros:excluir_sinistro' pk=sinistro.pk %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="action-button confirm-delete">Sim, Excluir Permanentemente</button>
+            </form>
+            <a href="{% url 'sinistros:listar_sinistros' %}" class="action-button cancel">Cancelar</a>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+{# Este bloco está vazio, a menos que você adicione JS específico aqui #}
+{% endblock extra_js %}

@@ -3,10 +3,10 @@
 from django.shortcuts import render, redirect # Importa render e redirect
 from django.contrib.auth import authenticate, login, logout # Importa funções de autenticação (authenticate, login, e logout)
 from django.contrib import messages # Importa o módulo de mensagens para feedback ao usuário
-from django.urls import reverse # Importa reverse para gerar URLs por nome
+from django.urls import reverse
+from datetime import date, timedelta # Importa date (data atual) e timedelta (para cálculo de datas)
 
-# Importa o modelo Veiculo para poder contar os carros no dashboard
-from veiculos.models import Veiculo # NOVO: Importa o modelo Veiculo
+from veiculos.models import Veiculo # Importa o modelo Veiculo para poder contar carros e buscar alertas
 
 
 def login_view(request):
@@ -42,18 +42,33 @@ def login_view(request):
 def dashboard_view(request):
     """
     Esta view será responsável por exibir a página do dashboard.
-    - Verifica se o usuário está autenticado. Se não, redireciona para o login.
+    - Verifica se o usuário está autenticado.
     - Busca e exibe a quantidade de carros ativos.
+    - Busca e exibe alertas de seguros próximos ao vencimento (próximos 60 dias).
     """
-    # Verifica se o usuário está autenticado. Se não estiver, redireciona para o login.
     if not request.user.is_authenticated:
         return redirect(reverse('core:login'))
 
-    # Busca a quantidade real de veículos ativos no sistema
+    # Contagem de carros ativos
     quantidade_carros = Veiculo.objects.filter(ativo=True).count()
 
+    # Lógica para Alertas de Vencimento
+    today = date.today() # Obtém a data de hoje
+    # Calcula a data limite para o alerta (hoje + 60 dias)
+    alert_date_limit = today + timedelta(days=60) 
+
+    # Busca veículos ativos cujo vencimento do seguro está entre hoje e a data limite de alerta
+    # .select_related('empresa') para otimizar o acesso à razão social no template
+    alertas_vencimento = Veiculo.objects.filter(
+        ativo=True, # Apenas veículos ativos
+        data_vencimento_seguro__gte=today, # Vencimento maior ou igual a hoje
+        data_vencimento_seguro__lte=alert_date_limit # Vencimento menor ou igual à data limite
+    ).order_by('data_vencimento_seguro') # Ordena pela data de vencimento (mais próximos primeiro)
+
     context = {
-        'quantidade_carros': quantidade_carros, # Passa a contagem real para o template
+        'quantidade_carros': quantidade_carros,
+        'alertas_vencimento': alertas_vencimento, # Passa a lista de veículos com alertas
+        'total_alertas': alertas_vencimento.count(), # Passa a quantidade de alertas
     }
 
     return render(request, 'core/dashboard.html', context)
