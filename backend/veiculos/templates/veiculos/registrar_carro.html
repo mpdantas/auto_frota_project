@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block extra_css %}
-{# Este bloco está vazio, pois o CSS foi para o main.css #}
+{# Este bloco está vazio, pois o CSS está no main.css #}
 {% endblock extra_css %}
 
 {% block content %}
@@ -59,6 +59,6 @@
     </div>
 {% endblock content %}
 
-{% block extra_js %}
-{# Este bloco está vazio, a menos que você adicione JS específico aqui #}
+{% block extra_js %} {# Bloco para JavaScript adicional #}
+    <script src="{% static 'js/masks.js' %}"></script>
 {% endblock extra_js %}

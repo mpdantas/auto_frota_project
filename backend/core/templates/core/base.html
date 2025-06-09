@@ -20,7 +20,6 @@
                     <li><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
                     <li><a href="{% url 'veiculos:listar_carros' %}">Veículos</a></li> 
                     <li><a href="{% url 'veiculos:listar_empresas' %}">Empresas</a></li>
-                    {# CORRIGIDO: Sinistros no cabeçalho agora aponta para a lista correta #}
                     <li><a href="{% url 'sinistros:listar_sinistros' %}">Sinistros</a></li>
                     {% if user.is_authenticated %}
                         <li><a href="{% url 'core:logout' %}">Sair ({{ user.username }})</a></li> 
@@ -30,6 +29,18 @@
                 </ul>
             </nav>
         </header>
+
+        {# NOVO: Contêiner para as mensagens do Django (agora fixo na tela) #}
+        <ul class="messages-container">
+            {% if messages %}
+                {% for message in messages %}
+                    <li class="{{ message.tags }}" data-autohide="true">
+                        {{ message }}
+                        <button type="button" class="close-btn">&times;</button> {# Botão de fechar (X) #}
+                    </li>
+                {% endfor %}
+            {% endif %}
+        </ul>
 
         <main class="main-content">
             {% block content %}

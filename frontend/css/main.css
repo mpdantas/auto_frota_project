@@ -86,40 +86,71 @@ body {
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
 }
 
-/* --- Estilos para Mensagens do Django --- */
-.messages {
-    list-style: none;
+/* --- Estilos para Mensagens do Django (Aprimorados para Toast/Banner) --- */
+.messages-container {
+    position: fixed; /* Fixa a posição na tela */
+    top: 70px; /* Abaixo do cabeçalho */
+    left: 50%;
+    transform: translateX(-50%); /* Centraliza horizontalmente */
+    width: 90%; /* Largura padrão */
+    max-width: 600px; /* Largura máxima */
+    z-index: 1000; /* Garante que apareça acima de outros elementos */
     padding: 0;
-    margin-bottom: 20px;
-    width: 100%; /* Ajusta para largura total do container */
-    max-width: 960px; /* Alinha com containers de conteúdo */
+    list-style: none;
 }
-.messages li {
-    padding: 10px;
+
+.messages-container li {
+    padding: 15px 20px;
     margin-bottom: 10px;
-    border-radius: 4px;
+    border-radius: 8px;
     font-weight: bold;
     text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    opacity: 1; /* Inicia visível */
+    transition: opacity 0.5s ease-out; /* Transição para o desaparecimento */
+    position: relative; /* Para o close button */
 }
-.messages .success {
+.messages-container li.fade-out {
+    opacity: 0; /* Torna invisível */
+}
+
+/* Cores das Mensagens */
+.messages-container .success {
     background-color: #d4edda;
     color: #155724;
     border: 1px solid #c3e6cb;
 }
-.messages .error {
+.messages-container .error {
     background-color: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
-.messages .warning {
+.messages-container .warning {
     background-color: #fff3cd;
     color: #856404;
     border: 1px solid #ffeeba;
 }
-.messages .info { /* Estilo para mensagens de informação/logout */
+.messages-container .info {
     background-color: #d1ecf1;
     color: #0c5460;
     border: 1px solid #bee5eb;
+}
+
+/* Botão de Fechar Mensagens (opcional, para fechar manualmente) */
+.messages-container .close-btn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: inherit; /* Herda a cor do texto da mensagem */
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+}
+.messages-container .close-btn:hover {
+    opacity: 0.7;
 }
 
 /* --- Estilos Comuns para Containers de Formulário/Listagem/Confirmação --- */
@@ -133,7 +164,9 @@ body {
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin: 20px auto; /* Centraliza e adiciona espaço */
-    width: 100%; /* Garante que ocupe a largura disponível */
+    /* Aumentar max-width para usar mais tela */
+    max-width: 1600px; /* NOVO: Aumentado de 1400px para 1600px */
+    width: 95%; /* Usa 95% da largura da viewport */
     box-sizing: border-box; /* Inclui padding e borda na largura */
 }
 
@@ -162,7 +195,10 @@ body {
 .form-group input[type="text"],
 .form-group input[type="number"],
 .form-group input[type="date"],
-.form-group select {
+.form-group select,
+.form-group textarea, /* Adicionado para TextAreas como a descrição do sinistro */
+.search-form input[type="search"], /* Inclui search inputs aqui */
+.search-form input[type="text"] { /* Inclui text inputs para busca de empresa */
     width: calc(100% - 22px); /* Largura total menos padding e borda */
     padding: 10px;
     border: 1px solid #ddd;
@@ -184,10 +220,13 @@ body {
 }
 
 /* --- Estilos de Botões e Links de Ação (Gerais) --- */
+/* Botões de formulário (Salvar, Entrar, Buscar) */
+/* Botões da Ações Rápidas no dashboard (action-button) */
 .form-actions button,
 .search-form button,
-.action-button {
-    background-color: #28a745; /* Verde padrão para ações de salvar/buscar */
+.login-container button,
+.action-button { /* AGORA A CLASSE ACTION-BUTTON TAMBÉM É AZUL POR PADRÃO */
+    background-color: #007bff; /* AZUL para botões de ação primária (login, buscar, salvar, e Ações Rápidas) */
     color: white;
     padding: 10px 20px;
     border: none;
@@ -195,39 +234,40 @@ body {
     cursor: pointer;
     font-size: 1em;
     transition: background-color 0.3s ease;
-    text-decoration: none; /* Para links que parecem botões */
-    display: inline-block; /* Para padding e margem */
-    margin: 5px; /* Espaçamento entre botões/links */
+    text-decoration: none;
+    display: inline-block;
+    margin: 5px;
 }
 .form-actions button:hover,
 .search-form button:hover,
-.action-button:hover {
-    background-color: #218838;
+.login-container button:hover,
+.action-button:hover { /* Hover para os botões azuis */
+    background-color: #0056b3; /* Tom mais escuro no hover */
 }
 
-/* Botões de Ação Específicos */
-.action-button.edit {
-    background-color: #007bff; /* Azul para edição */
+/* Botões de Ação Específicos (cores que sobrescrevem o azul padrão) */
+.action-button.edit { /* Este já é azul, mas mantemos a classe para especificidade */
+    background-color: #007bff; 
 }
 .action-button.edit:hover {
     background-color: #0056b3;
 }
-.action-button.delete,
-.action-button.confirm-delete { /* Delete para ambos veículos e empresas */
-    background-color: #dc3545; /* Vermelho para exclusão */
+.action-button.delete, /* VERMELHO para exclusão/desativação */
+.action-button.confirm-delete {
+    background-color: #dc3545;
 }
 .action-button.delete:hover,
 .action-button.confirm-delete:hover {
     background-color: #c82333;
 }
-.action-button.cancel { /* Botão de cancelar */
-    background-color: #6c757d; /* Cinza */
+.action-button.cancel { /* CINZA para cancelar */
+    background-color: #6c757d;
 }
 .action-button.cancel:hover {
     background-color: #5a6268;
 }
 
-/* Link de Logout no Cabeçalho */
+/* Link de Logout no Cabeçalho (permanece vermelho) */
 .logout-link {
     color: #dc3545;
     text-decoration: none;
@@ -246,41 +286,35 @@ body {
 
 /* Página de Login */
 .login-container {
-    max-width: 350px; /* Largura menor para o formulário de login */
+    max-width: 350px;
     text-align: center;
-    /* Ajustes específicos para os inputs do formulário de login */
 }
 .login-container input[type="text"],
 .login-container input[type="password"] {
-    width: calc(100% - 20px); /* Largura total menos padding */
+    width: calc(100% - 20px);
     padding: 10px;
     margin-bottom: 15px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    font-size: 16px; /* Garante que os inputs de login também tenham um bom tamanho de fonte */
-}
-.login-container button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff; /* Cor azul para o botão de login */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
     font-size: 16px;
-}
-.login-container button:hover {
-    background-color: #0056b3;
 }
 
 
 /* Dashboard */
 .dashboard-container {
     max-width: 960px;
+    width: 95%;
     text-align: left;
+    border-top: 5px solid #007bff;
+    padding-top: 25px;
 }
 .dashboard-stats, .dashboard-actions {
     margin-bottom: 30px;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 20px;
+}
+.dashboard-stats:last-child, .dashboard-actions:last-child {
+    border-bottom: none;
 }
 .dashboard-stats h2, .dashboard-actions h2 {
     color: #555;
@@ -306,28 +340,41 @@ body {
 }
 
 
-/* Páginas de Listagem (Veículos e Empresas e Sinistros) */
+/* Páginas de Listagem (Veículos, Empresas, Sinistros) */
+/* Aumentar max-width e usar 95% de largura */
 .vehicle-list-container,
-.company-list-container {
-    max-width: 1200px;
+.company-list-container,
+.sinistro-list-container {
+    max-width: 1600px; /* Aumentado para acomodar mais conteúdo em telas grandes */
+    width: 95%; /* Garante que ocupe a largura da viewport */
+    margin: 20px auto;
+    box-sizing: border-box;
 }
+
+/* Contagem de itens */
 .vehicle-list-container p.count,
-.company-list-container p.count {
+.company-list-container p.count,
+.sinistro-list-container p.count {
     text-align: right;
     font-weight: bold;
     margin-bottom: 20px;
     color: #555;
 }
+/* Estilo da tabela principal */
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    table-layout: fixed; /* Força o layout fixo para controle de largura de coluna */
 }
 th, td {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
     vertical-align: top;
+    white-space: normal; /* Permite quebras de linha normais */
+    overflow: visible; /* Não esconde conteúdo por padrão */
+    text-overflow: clip; /* Não adiciona reticências por padrão */
 }
 th {
     background-color: #f2f2f2;
@@ -340,11 +387,57 @@ tr:nth-child(even) {
 tr:hover {
     background-color: #e9e9e9;
 }
-.no-vehicles, .no-companies {
+.no-vehicles, .no-companies, .no-sinistros {
     text-align: center;
     padding: 30px;
     color: #777;
 }
+
+/* --- TRUNCAMENTO SELETIVO: Para campos que podem ser muito longos (Chassi, Renavam, Descrição) --- */
+/* Aplica white-space: nowrap; overflow: hidden; text-overflow: ellipsis; apenas onde a classe for usada */
+.truncate-text {
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+}
+
+
+/* Larguras específicas para colunas da tabela de veículos */
+/* A soma deve ser 100%. Ajuste conforme a necessidade de espaço */
+.vehicle-list-container th:nth-child(1), .vehicle-list-container td:nth-child(1) { width: 8%; } /* Placa */
+.vehicle-list-container th:nth-child(2), .vehicle-list-container td:nth-child(2) { width: 8%; } /* Modelo */
+.vehicle-list-container th:nth-child(3), .vehicle-list-container td:nth-child(3) { width: 8%; } /* Marca */
+.vehicle-list-container th:nth-child(4), .vehicle-list-container td:nth-child(4) { width: 10%; } /* Empresa */
+.vehicle-list-container th:nth-child(5), .vehicle-list-container td:nth-child(5) { width: 10%; } /* Condutor */
+.vehicle-list-container th:nth-child(6), .vehicle-list-container td:nth-child(6) { width: 8%; } /* Seguradora */
+.vehicle-list-container th:nth-child(7), .vehicle-list-container td:nth-child(7) { width: 7%; } /* Franquia */
+.vehicle-list-container th:nth-child(8), .vehicle-list-container td:nth-child(8) { width: 5%; } /* Classe Bônus */
+.vehicle-list-container th:nth-child(9), .vehicle-list-container td:nth-child(9) { width: 8%; } /* Vencimento Seguro */
+.vehicle-list-container th:nth-child(10), .vehicle-list-container td:nth-child(10) { width: 4%; } /* Ano Fab. */
+.vehicle-list-container th:nth-child(11), .vehicle-list-container td:nth-child(11) { width: 4%; } /* Ano Mod. */
+.vehicle-list-container th:nth-child(12), .vehicle-list-container td:nth-child(12) { width: 9%; } /* Chassi */
+.vehicle-list-container th:nth-child(13), .vehicle-list-container td:nth-child(13) { width: 8%; } /* Renavam */
+.vehicle-list-container th:nth-child(14), .vehicle-list-container td:nth-child(14) { width: 3%; } /* Ativo */
+.vehicle-list-container th:nth-child(15), .vehicle-list-container td:nth-child(15) { width: 10%; } /* Ações */
+
+
+/* Larguras específicas para colunas da tabela de empresas */
+.company-list-container th:nth-child(1), .company-list-container td:nth-child(1) { width: 40%; } /* Razão Social */
+.company-list-container th:nth-child(2), .company-list-container td:nth-child(2) { width: 25%; } /* CNPJ */
+.company-list-container th:nth-child(3), .company-list-container td:nth-child(3) { width: 20%; } /* Data de Cadastro */
+.company-list-container th:nth-child(4), .company-list-container td:nth-child(4) { width: 15%; } /* Ações */
+
+
+/* Larguras específicas para colunas da tabela de sinistros */
+.sinistro-list-container th:nth-child(1), .sinistro-list-container td:nth-child(1) { width: 10%; } /* Veículo (Placa) */
+.sinistro-list-container th:nth-child(2), .sinistro-list-container td:nth-child(2) { width: 10%; } /* Modelo */
+.sinistro-list-container th:nth-child(3), .sinistro-list-container td:nth-child(3) { width: 12%; } /* Tipo de Sinistro */
+.sinistro-list-container th:nth-child(4), .sinistro-list-container td:nth-child(4) { width: 10%; } /* Data do Sinistro */
+.sinistro-list-container th:nth-child(5), .sinistro-list-container td:nth-child(5) { width: 12%; } /* Status */
+.sinistro-list-container th:nth-child(6), .sinistro-list-container td:nth-child(6) { width: 25%; } /* Descrição */
+.sinistro-list-container th:nth-child(7), .sinistro-list-container td:nth-child(7) { width: 10%; } /* Empresa */
+.sinistro-list-container th:nth-child(8), .sinistro-list-container td:nth-child(8) { width: 11%; } /* Ações */
+
 
 /* Formulários de Busca */
 .search-form {
@@ -367,4 +460,119 @@ tr:hover {
 }
 .confirm-actions {
     margin-top: 25px;
+}
+
+/* --- Estilos para Responsividade --- */
+
+/* Telas menores que 768px (tablets em modo retrato e celulares) */
+@media (max-width: 768px) {
+    /* Cabeçalho */
+    .main-header {
+        flex-direction: column;
+        padding: 10px 15px;
+    }
+    .main-header .main-nav {
+        margin-top: 10px;
+    }
+    .main-header .main-nav ul {
+        flex-direction: column;
+        text-align: center;
+        width: 100%;
+    }
+    .main-header .main-nav ul li {
+        margin: 5px 0;
+    }
+    .main-header .main-nav ul li a {
+        display: block;
+        padding: 8px 15px;
+    }
+
+    /* Conteúdo Principal */
+    .main-content {
+        padding: 10px;
+    }
+
+    /* Containers de Formulário/Listagem/Confirmação */
+    .form-container,
+    .vehicle-list-container,
+    .company-list-container,
+    .dashboard-container,
+    .confirm-container,
+    .login-container {
+        padding: 15px;
+        margin: 10px auto;
+        border-radius: 4px;
+    }
+
+    /* Formulários de Busca */
+    .search-form {
+        flex-direction: column;
+        gap: 5px;
+    }
+    .search-form input[type="search"],
+    .search-form input[type="text"] {
+        width: 100%;
+        max-width: none;
+    }
+    .search-form button {
+        width: 100%;
+    }
+
+    /* Tabelas: Mantém overflow-x para permitir rolagem horizontal */
+    .vehicle-list-container table,
+    .company-list-container table,
+    .sinistro-list-container table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap; /* Impede quebras de linha dentro das células */
+        width: auto; /* Permite que a tabela seja mais larga que o contêiner se necessário */
+    }
+    .vehicle-list-container th,
+    .company-list-container th,
+    .vehicle-list-container td,
+    .company-list-container td,
+    .sinistro-list-container th,
+    .sinistro-list-container td {
+        padding: 8px;
+        font-size: 0.9em;
+        white-space: nowrap; /* Garante que o texto não quebre dentro da célula */
+        overflow: hidden; /* Esconde o texto que excede a largura */
+        text-overflow: ellipsis; /* Adiciona "..." no final do texto truncado */
+        width: auto !important; /* Remove larguras fixas em telas pequenas */
+    }
+
+    /* Mensagens */
+    .messages-container {
+        top: 60px;
+        width: 95%;
+        max-width: none;
+    }
+    .messages-container li {
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+}
+
+/* Telas muito pequenas (celulares em modo retrato) */
+@media (max-width: 480px) {
+    /* Logo no cabeçalho */
+    .main-header .logo-text {
+        font-size: 20px;
+    }
+    .main-header .logo-img {
+        height: 35px;
+    }
+
+    /* Tamanho de fonte geral um pouco menor */
+    body {
+        font-size: 0.95em;
+    }
+
+    /* Botões */
+    .form-actions button,
+    .search-form button,
+    .action-button {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
 }

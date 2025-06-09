@@ -41,8 +41,12 @@
                         <th>Franquia</th>
                         <th>Classe Bônus</th>
                         <th>Vencimento Seguro</th>
+                        <th>Ano Fab.</th> {# NOVO: Cabeçalho Ano Fabricação #}
+                        <th>Ano Mod.</th> {# NOVO: Cabeçalho Ano Modelo #}
+                        <th>Chassi</th> {# NOVO: Cabeçalho Chassi #}
+                        <th>Renavam</th> {# NOVO: Cabeçalho Renavam #}
                         <th>Ativo</th>
-                        <th>Ações</th> {# COLUNA PARA BOTÕES DE AÇÃO #}
+                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,21 +55,21 @@
                         <td>{{ veiculo.placa }}</td>
                         <td>{{ veiculo.modelo }}</td>
                         <td>{{ veiculo.marca }}</td>
-                        <td>{{ veiculo.empresa.razao_social }}</td> {# Acessa a Razão Social da Empresa relacionada #}
-                        <td>{{ veiculo.nome_condutor|default:"Não informado" }}</td> {# Exibe "Não informado" se campo estiver vazio #}
+                        <td>{{ veiculo.empresa.razao_social }}</td>
+                        <td>{{ veiculo.nome_condutor|default:"Não informado" }}</td>
                         <td>{{ veiculo.seguradora }}</td>
-                        <td>R$ {{ veiculo.franquia|floatformat:2 }}</td> {# Formata como moeda #}
+                        <td>R$ {{ veiculo.franquia|floatformat:2 }}</td>
                         <td>{{ veiculo.classe_bonus }}</td>
-                        <td>{{ veiculo.data_vencimento_seguro|date:"d/m/Y" }}</td> {# Formata a data #}
+                        <td>{{ veiculo.data_vencimento_seguro|date:"d/m/Y" }}</td>
+                        <td>{{ veiculo.ano_fabricacao }}</td> {# NOVO: Exibe Ano Fabricação #}
+                        <td>{{ veiculo.ano_modelo }}</td> {# NOVO: Exibe Ano Modelo #}
+                        <td>{{ veiculo.chassi }}</td> {# NOVO: Exibe Chassi #}
+                        <td>{{ veiculo.renavam }}</td> {# NOVO: Exibe Renavam #}
                         <td>{% if veiculo.ativo %}Sim{% else %}Não{% endif %}</td>
-                        <td> {# CÉLULA DE AÇÕES #}
-                            {# Botão para Editar o veículo #}
+                        <td>
                             <a href="{% url 'veiculos:editar_carro' pk=veiculo.pk %}" class="action-button edit">Editar</a>
-                            
-                            {# Botão para Desativar o veículo #}
-                            {# Usa um formulário POST para segurança, e um confirm JavaScript #}
                             <form action="{% url 'veiculos:excluir_carro' pk=veiculo.pk %}" method="post" style="display:inline;">
-                                {% csrf_token %} {# Token de segurança CSRF #}
+                                {% csrf_token %}
                                 <button type="submit" class="action-button delete" 
                                         onclick="return confirm('Tem certeza que deseja desativar o veículo {{ veiculo.placa }}? Esta ação não pode ser desfeita diretamente por aqui.');">
                                     Desativar
@@ -82,6 +86,4 @@
     </div>
 {% endblock content %}
 
-{% block extra_js %}
-{# Este bloco está vazio, a menos que você adicione JS específico aqui #}
-{% endblock extra_js %}
+{% block extra_js %}{% endblock extra_js %}

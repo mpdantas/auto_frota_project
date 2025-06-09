@@ -56,14 +56,14 @@
             <section class="dashboard-actions">
                 <h2>Ações Rápidas</h2>
                 <ul>
-                    <li><a href="{% url 'veiculos:registrar_empresa' %}">Registrar Nova Empresa</a></li>
-                    <li><a href="{% url 'veiculos:listar_empresas' %}">Gerenciar Empresas</a></li> 
-                    <li><a href="{% url 'veiculos:registrar_carro' %}">Registrar Novo Veículo</a></li>
-                    <li><a href="{% url 'veiculos:listar_carros' %}">Visualizar Frota</a></li>
-                    <li><a href="{% url 'veiculos:listar_carros' %}?q=">Buscar Veículo</a></li>
-                    <li><a href="{% url 'sinistros:registrar_sinistro' %}">Registrar Sinistro</a></li>
-                    {# CORRIGIDO: Gerenciar Sinistros agora aponta para a lista correta #}
-                    <li><a href="{% url 'sinistros:listar_sinistros' %}">Gerenciar Sinistros</a></li>
+                    {# Adicionado a classe action-button a cada link para estilizá-los como botões #}
+                    <li><a href="{% url 'veiculos:registrar_empresa' %}" class="action-button">Registrar Nova Empresa</a></li>
+                    <li><a href="{% url 'veiculos:listar_empresas' %}" class="action-button">Gerenciar Empresas</a></li> 
+                    <li><a href="{% url 'veiculos:registrar_carro' %}" class="action-button">Registrar Novo Veículo</a></li>
+                    <li><a href="{% url 'veiculos:listar_carros' %}" class="action-button">Visualizar Frota</a></li>
+                    <li><a href="{% url 'veiculos:listar_carros' %}?q=" class="action-button">Buscar Veículo</a></li>
+                    <li><a href="{% url 'sinistros:registrar_sinistro' %}" class="action-button">Registrar Sinistro</a></li>
+                    <li><a href="{% url 'sinistros:listar_sinistros' %}" class="action-button">Gerenciar Sinistros</a></li>
                 </ul>
             </section>
         {% else %}

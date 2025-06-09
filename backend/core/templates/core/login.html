@@ -9,7 +9,7 @@
 
 {% block content %} {# Inicia o bloco de conteúdo principal #}
     <div class="login-container">
-        <h2>Login - Sistema Auto Frota</h2>
+        <h2>Sistema Auto Frota</h2>
         <form method="post" action="{% url 'core:login' %}"> {# Garante que o POST vá para a URL correta #}
             {% csrf_token %} 
             <input type="text" name="username" placeholder="Usuário" required>
