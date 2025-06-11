@@ -26,33 +26,51 @@ function applyCnpjMask(inputElement) {
 }
 
 /**
- * Aplica uma máscara de Placa de Veículo (Mercosul/Antiga) a um campo de input.
- * Formatos: AAA-0A00 ou AAA0A00. Não é uma validação estrita, apenas formatação visual.
+ * Aplica uma máscara de Placa de Veículo a um campo de input.
+ * Tenta ajustar para padrões AAA-NNNN ou AAA0A00.
  *
  * @param {HTMLInputElement} inputElement O elemento input HTML.
  */
 function applyPlacaMask(inputElement) {
     inputElement.addEventListener('input', function (e) {
-        let value = e.target.value.toUpperCase(); // Converte para maiúsculas
-        value = value.replace(/[^A-Z0-9]/g, ''); // Remove tudo que não for letra ou número
+        let value = e.target.value.toUpperCase(); // Converte para maiúsculas logo no início
+        let cleanValue = value.replace(/[^A-Z0-9]/g, ''); // Remove tudo que não for letra ou número (e hífen, por enquanto)
 
-        // Limita a 7 caracteres (3 letras + 4 números/letra+números)
-        if (value.length > 7) {
-            value = value.substring(0, 7);
+        let formattedValue = cleanValue;
+
+        // Limita a 7 caracteres alfanuméricos
+        if (cleanValue.length > 7) {
+            cleanValue = cleanValue.substring(0, 7);
         }
-        
-        // Aplica o hífen
-        // Exemplo: AAA-0000 ou AAA0A00
-        if (value.length > 3) {
-            // Se for placa Mercosul (AAA0A00)
-            if (value.length >= 5 && isNaN(parseInt(value.charAt(4)))) { // Verifica se o 5º caractere é letra (índice 4)
-                value = value.replace(/^([A-Z]{3})(\d{1})([A-Z]{1})(\d{0,2}).*/, '$1$2$3$4');
+
+        // --- Lógica de Formatação da Placa ---
+        // Se a placa tem 7 caracteres alfanuméricos
+        if (cleanValue.length === 7) {
+            // Padrão antigo: AAA-NNNN
+            if (/^[A-Z]{3}\d{4}$/.test(cleanValue)) {
+                formattedValue = cleanValue.replace(/^([A-Z]{3})(\d{4})$/, '$1-$2');
             }
-            // Adiciona o hífen na 4ª posição (para AAA-0000 ou AAA0A00 quando completo)
-            value = value.replace(/^([A-Z]{3}[0-9A-Z])([0-9A-Z]{3})$/, '$1-$2');
+            // Padrão Mercosul: AAA0A00 (mantém sem hífen)
+            else if (/^[A-Z]{3}\d[A-Z]\d{2}$/.test(cleanValue)) {
+                formattedValue = cleanValue;
+            } else {
+                // Se chegou a 7 caracteres e não é nenhum dos padrões, mantém como está
+                formattedValue = cleanValue;
+            }
+        } else if (cleanValue.length >= 4) {
+            // Durante a digitação, se o 4º caractere é um número (índice 3 na string limpa),
+            // e a placa está no meio de formação, tenta adicionar o hífen para o padrão antigo
+            if (!isNaN(parseInt(cleanValue.charAt(3)))) {
+                 formattedValue = cleanValue.replace(/^([A-Z]{3})([0-9].*)/, '$1-$2');
+            } else {
+                // Se o 4º caractere é uma letra (Mercosul), mantém sem hífen por enquanto
+                formattedValue = cleanValue;
+            }
+        } else {
+            formattedValue = cleanValue;
         }
-        
-        e.target.value = value;
+
+        e.target.value = formattedValue;
     });
 }
 
@@ -100,7 +118,7 @@ function applyFranquiaMask(inputElement) {
         // Adiciona separador de milhares (ponto)
         integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-        return `R$ <span class="math-inline">\{integerPart\},</span>{decimalPart}`;
+        return `R$ ${integerPart},${decimalPart}`;
     };
 
     // Função para obter o valor para o BACKEND (X.XXX.XX -> com ponto decimal)
@@ -112,16 +130,8 @@ function applyFranquiaMask(inputElement) {
 
     // Ao digitar no campo
     inputElement.addEventListener('input', function (e) {
-        // Salva a posição do cursor para tentar restaurar (opcional, para melhor UX)
-        // let oldCursorPos = e.target.selectionStart;
-        // let oldValue = e.target.value;
-        
         let displayValue = formatValueToDisplay(e.target.value);
         e.target.value = displayValue;
-
-        // Tenta ajustar a posição do cursor (opcional, para melhor UX)
-        // let newCursorPos = oldCursorPos + (displayValue.length - oldValue.length);
-        // e.target.setSelectionRange(newCursorPos, newCursorPos);
     });
 
     // Ao sair do campo (para garantir formatação final)
@@ -131,6 +141,97 @@ function applyFranquiaMask(inputElement) {
 
     // Ao focar no campo (para remover formatação e facilitar a digitação)
     inputElement.addEventListener('focus', function (e) {
-        // Remove a formatação para facilitar a digitação, mas mantém o valor puro de centavos
         let value = e.target.value;
         let cleaned = value.toString().replace(/[^0-9]/g, '');
+        e.target.value = cleaned; 
+    });
+
+    // Antes do formulário ser submetido, transforma o valor para o formato do backend
+    if (inputElement.form) {
+        inputElement.form.addEventListener('submit', function () {
+            inputElement.value = getBackendValue(inputElement.value);
+        });
+    }
+
+    // Garante que o valor inicial (se já existir, ex: na edição) seja formatado ao carregar
+    if (inputElement.value) {
+        let initialCleanValue = inputElement.value.toString().replace(/[^0-9.]/g, ''); 
+        if (initialCleanValue) {
+            let parts = initialCleanValue.split('.');
+            let integerPart = parts[0] || '0';
+            let decimalPart = parts[1] || '00';
+            let valueInCents = integerPart + decimalPart.padEnd(2, '0').substring(0,2); 
+
+            inputElement.value = formatValueToDisplay(valueInCents);
+        }
+    }
+}
+
+/**
+ * Aplica uma máscara que converte todo o texto de um input para maiúsculas.
+ *
+ * @param {HTMLInputElement} inputElement O elemento input HTML ao qual a máscara será aplicada.
+ */
+function applyUppercaseMask(inputElement) {
+    inputElement.addEventListener('input', function (e) {
+        e.target.value = e.target.value.toUpperCase(); // Converte para maiúsculas
+    });
+}
+
+
+// Quando o DOM estiver completamente carregado, aplica as máscaras
+document.addEventListener('DOMContentLoaded', function() {
+    // --- Aplicação das Máscaras de Input ---
+    // CNPJ (na página de registro de empresa)
+    const cnpjInput = document.getElementById('id_cnpj'); 
+    if (cnpjInput) {
+        applyCnpjMask(cnpjInput);
+    }
+
+    // Placa (na página de registro/edição de veículo)
+    const placaInput = document.getElementById('id_placa');
+    if (placaInput) {
+        applyPlacaMask(placaInput);
+    }
+
+    // Renavam (na página de registro/edição de veículo)
+    const renavamInput = document.getElementById('id_renavam');
+    if (renavamInput) {
+        applyRenavamMask(renavamInput);
+    }
+
+    // Franquia (na página de registro/edição de veículo)
+    const franquiaInput = document.getElementById('id_franquia');
+    if (franquiaInput) {
+        applyFranquiaMask(franquiaInput);
+    }
+
+    // Chassi (na página de registro/edição de veículo)
+    const chassiInput = document.getElementById('id_chassi');
+    if (chassiInput) {
+        applyUppercaseMask(chassiInput); // Aplica a nova máscara de maiúsculas
+    }
+
+    // --- Lógica para Mensagens Auto-ocultáveis (Toasts) ---
+    const messageContainer = document.querySelector('.messages-container');
+    if (messageContainer) {
+        const messages = messageContainer.querySelectorAll('li[data-autohide="true"]');
+        messages.forEach(message => {
+            // Define um timer para a mensagem desaparecer
+            setTimeout(() => {
+                message.classList.add('fade-out'); // Adiciona a classe para iniciar a transição
+                // Remove a mensagem do DOM após a transição
+                message.addEventListener('transitionend', () => message.remove());
+            }, 5000); // 5000 milissegundos = 5 segundos
+
+            // Adiciona listener para o botão de fechar manualmente
+            const closeBtn = message.querySelector('.close-btn');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    message.classList.add('fade-out');
+                    message.addEventListener('transitionend', () => message.remove());
+                });
+            }
+        });
+    }
+});

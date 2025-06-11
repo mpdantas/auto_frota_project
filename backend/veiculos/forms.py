@@ -2,7 +2,7 @@
 
 from django import forms # Importa o módulo forms do Django
 from .models import Veiculo, Empresa # Importa os modelos Veiculo e Empresa
-import re # Importa o módulo de expressões regulares para validação de CNPJ
+import re # Importa o módulo de expressões regulares para validação de CNPJ e Placa
 
 # --- Formulário para o Modelo Empresa ---
 class EmpresaForm(forms.ModelForm):
@@ -43,12 +43,8 @@ class EmpresaForm(forms.ModelForm):
                 raise forms.ValidationError('O CNPJ deve conter exatamente 14 dígitos.')
 
             # Expressão regular para validar o formato XX.XXX.XXX/YYYY-ZZ
-            # Esta expressão verifica o formato EXATO. Se você quer que o usuário digite sem máscara,
-            # e o sistema formate, o código abaixo vai formatar e aceitar.
-            # Se você *quiser forçar* o usuário a digitar com a máscara, remova a parte de formatação.
             cnpj_pattern = r'^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$'
 
-            # Tenta formatar o CNPJ para o padrão XX.XXX.XXX/YYYY-ZZ
             # Se o CNPJ original não está no formato, ele o formata
             if not re.match(cnpj_pattern, cnpj):
                 cnpj_formatado = f"{cnpj_numerico[:2]}.{cnpj_numerico[2:5]}.{cnpj_numerico[5:8]}/{cnpj_numerico[8:12]}-{cnpj_numerico[12:]}"
@@ -116,6 +112,7 @@ class VeiculoForm(forms.ModelForm):
             'chassi': 'O chassi deve conter 17 caracteres alfanuméricos.',
             'renavam': 'O RENAVAM deve conter 11 dígitos.',
             'zero_kilometro': 'Marque se o veículo é zero quilômetro.',
+            'placa': 'Use o padrão AAA-1234 (antigo) ou AAA0A00 (Mercosul).'
         }
 
         # Opcional: Mensagens de erro personalizadas para validação
@@ -131,6 +128,34 @@ class VeiculoForm(forms.ModelForm):
             },
         }
     
+    # Método para limpar e validar o campo Placa
+    def clean_placa(self):
+        placa = self.cleaned_data.get('placa') # Obtém o valor da placa
+
+        if placa: # Se a placa não estiver vazia
+            placa_limpa = placa.replace('-', '').upper() # Remove hífen e converte para maiúsculas para validação
+
+            # Padrão para placa Mercosul: AAA0A00 (3 letras, 1 número, 1 letra, 2 números)
+            # Ex: ABC1E23
+            mercosul_pattern = r'^[A-Z]{3}\d[A-Z]\d{2}$'
+            
+            # Padrão para placa Antiga: AAA-0000 (3 letras, hífen, 4 números)
+            # Ex: ABC-1234
+            antiga_pattern = r'^[A-Z]{3}-\d{4}$'
+
+            # Primeiro, tenta validar o formato com hífen ou sem e padroniza
+            if re.match(antiga_pattern, placa):
+                # Se já está no formato antigo (com hífen), aceita como está
+                return placa
+            elif re.match(mercosul_pattern, placa_limpa): # Verifica o Mercosul sem hífen
+                # Se está no formato Mercosul (sem hífen), aceita o valor limpo
+                return placa_limpa 
+            else:
+                # Se não corresponde a nenhum dos padrões válidos
+                raise forms.ValidationError('Formato de placa inválido. Use AAA-1234 ou AAA0A00.')
+        
+        return placa # Retorna a placa (se vazia ou já validada)
+
     # Este método é executado quando o formulário é instanciado.
     # Usamos ele para adicionar a opção vazia (empty_label) aos dropdowns.
     def __init__(self, *args, **kwargs):
